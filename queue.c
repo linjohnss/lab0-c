@@ -213,15 +213,13 @@ void q_reverse(struct list_head *head)
     else if (list_empty(head))
         return;
 
-    struct list_head *node, *safe, *tmp;
+    struct list_head *node, *safe;
     list_for_each_safe (node, safe, head) {
-        tmp = node->next;
         node->next = node->prev;
-        node->prev = tmp;
+        node->prev = safe;
     }
-    tmp = head->next;
     head->next = head->prev;
-    head->prev = tmp;
+    head->prev = safe;
 }
 
 /*
