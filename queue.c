@@ -52,25 +52,24 @@ bool q_insert_head(struct list_head *head, char *s)
     if (!head)
         return false;
 
-    element_t *node = malloc(sizeof(element_t));
-    if (!node)
+    element_t *ele = malloc(sizeof(element_t));
+    if (!ele)
         return false;
 
     // allocate string space
     size_t length = strlen(s);
-    node->value = malloc(length + 1);
-    if (!node->value) {
-        free(node);
+    ele->value = malloc(length + 1);
+    if (!ele->value) {
+        free(ele);
         return false;
     }
 
-
     // copy the string into space
-    strncpy(node->value, s, length);
-    node->value[length] = '\0';
+    strncpy(ele->value, s, length);
+    ele->value[length] = '\0';
 
     // add new node in begining of head
-    list_add(&node->list, head);
+    list_add(&ele->list, head);
 
     return true;
 }
@@ -87,24 +86,24 @@ bool q_insert_tail(struct list_head *head, char *s)
     if (!head)
         return false;
 
-    element_t *node = malloc(sizeof(element_t));
-    if (!node)
+    element_t *ele = malloc(sizeof(element_t));
+    if (!ele)
         return false;
 
     // allocate string space
     size_t length = strlen(s);
-    node->value = malloc(length + 1);
-    if (!node->value) {
-        free(node);
+    ele->value = malloc(length + 1);
+    if (!ele->value) {
+        free(ele);
         return false;
     }
 
     // copy the string into space
-    strncpy(node->value, s, length);
-    node->value[length] = '\0';
+    strncpy(ele->value, s, length);
+    ele->value[length] = '\0';
 
     // add new node in begining of head
-    list_add_tail(&node->list, head);
+    list_add_tail(&ele->list, head);
 
     return true;
 }
@@ -207,7 +206,23 @@ void q_swap(struct list_head *head)
  * (e.g., by calling q_insert_head, q_insert_tail, or q_remove_head).
  * It should rearrange the existing ones.
  */
-void q_reverse(struct list_head *head) {}
+void q_reverse(struct list_head *head)
+{
+    if (!head)
+        return;
+    else if (list_empty(head))
+        return;
+
+    struct list_head *node, *safe, *tmp;
+    list_for_each_safe (node, safe, head) {
+        tmp = node->next;
+        node->next = node->prev;
+        node->prev = tmp;
+    }
+    tmp = head->next;
+    head->next = head->prev;
+    head->prev = tmp;
+}
 
 /*
  * Sort elements of queue in ascending order
