@@ -131,7 +131,7 @@ element_t *q_remove_head(struct list_head *head, char *sp, size_t bufsize)
     list_del_init(&ptr->list);
     size_t length = strlen(ptr->value);
     if (sp) {
-        length = length > bufsize - 1 ? bufsize - 1 : length;
+        length = (length > bufsize - 1) ? bufsize - 1 : length;
         strncpy(sp, ptr->value, length);
         sp[length] = '\0';
     }
@@ -151,7 +151,7 @@ element_t *q_remove_tail(struct list_head *head, char *sp, size_t bufsize)
     list_del_init(&ptr->list);
     size_t length = strlen(ptr->value);
     if (sp) {
-        length = length > bufsize ? bufsize : length;
+        length = (length > bufsize - 1) ? bufsize - 1 : length;
         strncpy(sp, ptr->value, length);
         sp[length] = '\0';
     }
@@ -190,8 +190,7 @@ int q_size(struct list_head *head)
  * The middle node of a linked list of size n is the
  * ⌊n / 2⌋th node from the start using 0-based indexing.
  * If there're six element, the third member should be return.
- * Return true if successful.
- * Return false if list is NULL or empty.
+ * Return NULL if list is NULL or empty.
  */
 bool q_delete_mid(struct list_head *head)
 {
@@ -233,6 +232,17 @@ bool q_delete_dup(struct list_head *head)
 void q_swap(struct list_head *head)
 {
     // https://leetcode.com/problems/swap-nodes-in-pairs/
+    if (!head || list_empty(head) || list_is_singular(head))
+        return;
+
+    struct list_head *right, *left;
+    left = head->next;
+    right = left->next;
+    while (left != head && right != head) {
+        list_move(left, right);
+        left = left->next;
+        right = left->next;
+    }
 }
 
 /*
@@ -258,9 +268,52 @@ void q_reverse(struct list_head *head)
     head->prev = safe;
 }
 
+struct list_head *mergeTwoList(struct list_head *L1, struct list_head *L2)
+{
+    struct list_head *head = NULL, **ptr = &head, **node = NULL;
+
+    for (element_t *ele1, *ele2; L1 && L2; *node = (*node)->next) {
+        ele1 = list_entry(L1, element_t, list);
+        ele2 = list_entry(L2, element_t, list);
+        node = (strcmp(ele1->value, ele2->value) <= 0) ? &L1 : &L2;
+        *ptr = *node;
+        ptr = &(*ptr)->next;
+    }
+    *ptr = (struct list_head *) ((__UINTPTR_TYPE__) L1 | (__UINTPTR_TYPE__) L2);
+    //*ptr = L1 ? L1 : L2;
+    return head;
+}
+
+struct list_head *mergesort_list(struct list_head *head)
+{
+    if (!head || !head->next)
+        return head;
+    struct list_head *slow = head;
+    for (struct list_head *fast = head->next; fast && fast->next;
+         fast = fast->next->next)
+        slow = slow->next;
+    struct list_head *mid = slow->next;
+    slow->next = NULL;
+    struct list_head *left = mergesort_list(head), *right = mergesort_list(mid);
+    return mergeTwoList(left, right);
+}
+
 /*
  * Sort elements of queue in ascending order
  * No effect if q is NULL or empty. In addition, if q has only one
  * element, do nothing.
  */
-void q_sort(struct list_head *head) {}
+void q_sort(struct list_head *head)
+{
+    if (!head || list_empty(head) || list_is_singular(head))
+        return;
+
+    head->prev->next = NULL;
+
+    head->next = mergesort_list(head->next);
+    struct list_head *ptr;
+    for (ptr = head; ptr->next; ptr = ptr->next)
+        ptr->next->prev = ptr;
+    ptr->next = head;
+    head->prev = ptr;
+}
