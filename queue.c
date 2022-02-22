@@ -326,3 +326,25 @@ void q_sort(struct list_head *head)
     ptr->next = head;
     head->prev = ptr;
 }
+
+/*
+ * shuffle element of queue
+ * use Fisher-Yates shuffle
+ */
+void q_shuffle(struct list_head *head)
+{
+    if (!head || list_empty(head) || list_is_singular(head))
+        return;
+
+    struct list_head *i = head, *j;
+    int r;
+    for (size_t length = q_size(head); length > 0; length--) {
+        j = head->next;
+        for (r = rand() % length; r > 0; r--)
+            j = j->next;
+
+        list_move_tail(i->prev, j);
+        list_move_tail(j, i);
+        i = i->prev;
+    }
+}
