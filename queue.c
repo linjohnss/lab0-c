@@ -226,10 +226,16 @@ bool q_delete_dup(struct list_head *head)
     if (!head || list_empty(head))
         return false;
     element_t *entry, *safe;
+    bool left = false;  // use left to delete the last duplicate element
     list_for_each_entry_safe (entry, safe, head, list) {
         if (&safe->list != head && !strcmp(entry->value, safe->value)) {
             list_del(&entry->list);
             q_release_element(entry);
+            left = true;
+        } else if (left) {
+            list_del(&entry->list);
+            q_release_element(entry);
+            left = false;
         }
     }
     return true;
