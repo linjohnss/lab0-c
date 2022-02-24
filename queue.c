@@ -33,10 +33,8 @@ void q_free(struct list_head *l)
 
     // traverse all entries and free the entry and its value
     element_t *entry, *safe;
-    list_for_each_entry_safe (entry, safe, l, list) {
-        free(entry->value);
-        free(entry);
-    }
+    list_for_each_entry_safe (entry, safe, l, list)
+        q_release_element(entry);
     free(l);
 }
 
