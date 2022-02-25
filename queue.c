@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "harness.h"
+#include "linux_sort.h"
 #include "queue.h"
 
 /* Notice: sometimes, Cppcheck would find the potential NULL pointer bugs,
@@ -351,4 +352,17 @@ void q_shuffle(struct list_head *head)
         list_move_tail(j, i);
         i = i->prev;
     }
+}
+
+int string_cmp(void *t, const struct list_head *L1, const struct list_head *L2)
+{
+    return strcmp(list_entry(L1, element_t, list)->value,
+                  list_entry(L2, element_t, list)->value);
+}
+
+void q_linux_sort(struct list_head *head)
+{
+    if (!head || list_empty(head) || list_is_singular(head))
+        return;
+    list_sort(NULL, head, string_cmp);
 }
