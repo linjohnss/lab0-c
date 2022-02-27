@@ -964,7 +964,7 @@ static void console_init()
                 "                | Swap every two adjacent nodes in queue");
     ADD_COMMAND(shuffle, "                | Shuffle all nodes in queue");
     ADD_COMMAND(LinuxSort,
-                "                | Use linux list_sort to sort queue in "
+                "        | Use linux list_sort to sort queue in "
                 "ascending order");
     add_param("length", &string_length, "Maximum length of displayed string",
               NULL);
@@ -1119,7 +1119,9 @@ int main(int argc, char *argv[])
     linenoiseSetCompletionCallback(completion);
 
     linenoiseHistorySetMaxLen(HISTORY_LEN);
-    linenoiseHistoryLoad(HISTORY_FILE); /* Load the history at startup */
+    /* Do not load history when command input is from file*/
+    if (!infile_name)
+        linenoiseHistoryLoad(HISTORY_FILE); /* Load the history at startup */
     set_verblevel(level);
     if (level > 1) {
         set_echo(true);
